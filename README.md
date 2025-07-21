@@ -1,1 +1,0 @@
-# voderrn-inventory-api
