@@ -17,8 +17,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class ProductSerializer(serializers.ModelSerializer):
-    class Meta: #doesn't inherit from anything, just holds config settings
+    seller = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+
+    class Meta:
         model = Product
         fields = "__all__"
+
 
 
