@@ -17,12 +17,12 @@ class ProductListView(generics.ListAPIView):
 
 class ProductCreateView(APIView):
     def post(self, request):
-        seller_id = request.data.get('seller_id')
-        seller = get_object_or_404(User, pk = seller_id)
-        if seller.user_type != "seller":
-            return Response({"error": "Only sellers can create products."}, status = 403)
+        seller_id = request.data.get('seller')  # changed from 'seller_id' to 'seller'
+        seller = get_object_or_404(User, pk=seller_id)
 
-        #This defines what happens when someone submits a POST request to create a product
+        if seller.user_type != "seller":
+            return Response({"error": "Only sellers can create products."}, status=403)
+
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -58,7 +58,16 @@ class ProductUpdateView(APIView):
 class ProductDeleteView(APIView):
     def delete(self, request, product_id):
         product = get_object_or_404(Product, pk=product_id)
-        seller_id = request.data.get("seller_id")
+        seller_id = request.query_params.get("seller_id")
+        seller_id = request.query_params.get("seller_id")
+        if not seller_id:
+            return Response({"error": "Missing seller_id query parameter."}, status=400)
+
+        try:
+            seller_id = int(seller_id)
+        except ValueError:
+            return Response({"error": "seller_id must be an integer."}, status=400)
+
         user = get_object_or_404(User, pk=seller_id)
 
         if user.user_type != "admin" and product.seller.user_id != seller_id:
